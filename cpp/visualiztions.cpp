@@ -33,16 +33,30 @@ int main()
 
 
     // Compute the correlation matrix
-    arma::mat corr = cor(train);
+    arma::mat corr_matrix(train.n_rows + 1, train.n_rows + 1, arma::fill::zeros);
 
-    // remove nan values from corr
-    corr.shed_col(0);
-    corr.shed_row(0);
+    // Compute correlations between each feature and the target variable
+    for (size_t i = 0; i < train.n_rows - 1; ++i)
+    {
+        arma::rowvec feature = train.row(i);
+        double correlation_with_target = arma::as_scalar(arma::cor(feature, drug));
+        corr_matrix(i + 1, 0) = corr_matrix(0, i + 1) = correlation_with_target;
+    }
 
-
+    // Compute correlations between each pair of features
+    for (size_t i = 0; i < train.n_rows - 1; ++i)
+    {
+        for (size_t j = i; j < train.n_rows - 1; ++j)
+        {
+            arma::rowvec feature1 = train.row(i);
+            arma::rowvec feature2 = train.row(j);
+            double correlation = arma::as_scalar(arma::cor(feature1, feature2));
+            corr_matrix(i + 1, j + 1) = corr_matrix(j + 1, i + 1) = correlation;
+        }
+    }
 
     // Save the correlation matrix
-    save_correlation_matrix(corr, "correlation_matrix.dat");
+    save_correlation_matrix(corr_matrix, "correlation_matrix.dat");
 
     // Plot the heatmap using Gnuplot
     plot_correlation_map("correlation_matrix.dat");
