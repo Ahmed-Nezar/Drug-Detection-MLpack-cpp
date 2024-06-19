@@ -153,7 +153,6 @@ void move_files()
     system("mv *.dat data/");
 }
 
-// Function to calculate the correlation matrix
 void calculate_correlation_matrix(const arma::mat& train, arma::mat& corr_matrix, const arma::rowvec& target)
 {
     // Compute correlations between each feature and the target variable
